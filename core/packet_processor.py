@@ -2,11 +2,11 @@ import time
 import scapy.all as sc
 import core.global_state as global_state
 import core.model as model
-import core.common as common
 import core.networking as networking
 import traceback
 from core.tls_processor import extract_sni
 import core.friendly_organizer as friendly_organizer
+import logging
 
 
 # How often to write the flow statistics to the database (in seconds)
@@ -27,7 +27,7 @@ def process_packet():
         process_packet_helper(pkt)
 
     except Exception as e:
-        common.log('[Pkt Processor] Error processing packet: ' + str(e) + ' for packet: ' + str(pkt) + '\n' + traceback.format_exc())
+        logging.warn('[Pkt Processor] Error processing packet: ' + str(e) + ' for packet: ' + str(pkt) + '\n' + traceback.format_exc())
 
 
 def process_packet_helper(pkt):
@@ -106,7 +106,7 @@ def process_arp(pkt):
     # Update the ARP cache
     global_state.arp_cache.update(ip_addr, mac_addr)
     if has_updated:
-        common.log(f'[Pkt Processor] Updated ARP cache: {ip_addr} -> {mac_addr}')
+        loging.info(f'[Pkt Processor] Updated ARP cache: {ip_addr} -> {mac_addr}')
 
 
 def process_dns(pkt):
@@ -171,7 +171,7 @@ def process_dns(pkt):
                 )
 
     if created:
-        common.log(f'[Pkt Processor] DNS: Device {device_mac_addr}: {hostname} -> {ip_set}')
+        logging.info(f'[Pkt Processor] DNS: Device {device_mac_addr}: {hostname} -> {ip_set}')
 
 
 def process_flow(pkt):
@@ -289,7 +289,7 @@ def write_pending_flows_to_db():
                     packet_count=flow_stat_dict['pkt_count']
                 )
 
-    common.log('[Pkt Processor] Wrote {} flows to database. Pending packet_queue size: {}'.format(
+    logging.info('[Pkt Processor] Wrote {} flows to database. Pending packet_queue size: {}'.format(
         len(flow_dict), global_state.packet_queue.qsize()
     ))
 
@@ -336,7 +336,7 @@ def process_dhcp(pkt):
                     device.dhcp_hostname = device_hostname
                     device.save()
 
-    common.log(f'[Pkt Processor] DHCP: Device {device_mac}: {device_hostname}')
+    logging.info(f'[Pkt Processor] DHCP: Device {device_mac}: {device_hostname}')
 
 
 def process_client_hello(pkt):
@@ -368,4 +368,4 @@ def process_client_hello(pkt):
         global_state.hostname_dict[pkt[sc.IP].dst] = sni
 
     if created:
-        common.log(f'[Pkt Processor] TLS: Device {pkt[sc.Ether].src}: {sni}')
+        logging.info(f'[Pkt Processor] TLS: Device {pkt[sc.Ether].src}: {sni}')

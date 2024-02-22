@@ -6,11 +6,9 @@ import traceback
 import core.global_state as global_state
 import threading
 import requests
+import logging
 
 
-
-# A lock for writing log messages
-_log_lock = threading.Lock()
 
 
 def get_project_directory():
@@ -31,18 +29,6 @@ def get_python_code_directory():
     """Returns the directory where the current code is hosted."""
 
     return os.path.dirname(os.path.realpath(__file__))
-
-
-def log(message: str):
-    """Logs the message to `inspector.log` under the project directory, along with the timestamp."""
-
-    # Add the timestamp to the message
-    message = '[%s] %s' % (str(datetime.datetime.now()), message)
-
-    with _log_lock:
-        with open(os.path.join(get_project_directory(), 'inspector.log'), 'a') as f:
-            f.write(message + '\n')
-
 
 
 class SafeLoopThread(object):
@@ -74,7 +60,7 @@ class SafeLoopThread(object):
     def _repeat_func(self):
         """Repeatedly calls the function."""
 
-        log('[SafeLoopThread] Starting %s %s %s' % (self._func, self._func_args, self._func_kwargs))
+        logging.info('[SafeLoopThread] Starting %s %s %s' % (self._func, self._func_args, self._func_kwargs))
 
         while True:
             self._func(*self._func_args, **self._func_kwargs)
@@ -98,7 +84,7 @@ class SafeLoopThread(object):
                 err_msg += str(traceback.format_exc()) + '\n\n\n'
 
                 sys.stderr.write(err_msg + '\n')
-                log(err_msg)
+                logging.warn(err_msg)
 
                 time.sleep(self._sleep_time)
 
@@ -139,19 +125,19 @@ def http_request(method='get', field_to_extract='', args=[], kwargs={}) -> str:
         else:
             r = requests.post(*args, **kwargs)
     except Exception as ex:
-        log(f'[http_request] Error: request with args {args} failed to complete: {ex}')
+        logging.warn(f'[http_request] Error: request with args {args} failed to complete: {ex}')
         raise IOError
 
     # Check the status code
     if r.status_code != 200:
-        log(f'[http_request] Error: request with args {args} failed with status code {r.status_code}')
+        logging.warn(f'[http_request] Error: request with args {args} failed with status code {r.status_code}')
         raise IOError
 
     # Parse the response as JSON
     try:
         response_dict = r.json()
     except Exception as ex:
-        log(f'[http_request] Error: unable to parse the response as JSON: {ex} - {r.text}')
+        logging.warn(f'[http_request] Error: unable to parse the response as JSON: {ex} - {r.text}')
         raise IOError
 
     # Check if success
@@ -163,13 +149,13 @@ def http_request(method='get', field_to_extract='', args=[], kwargs={}) -> str:
         # time for the backend to analyze an IP address) so that we won't
         # overwhelm the log with this message
         if err_msg != 'No data for this ip_addr':
-            log(f'[http_request] Error: request with args {args} did not succeed with error message: {err_msg}')
+            logging.warn(f'[http_request] Error: request with args {args} did not succeed with error message: {err_msg}')
         raise IOError
 
     # Return the field
     if field_to_extract:
         if field_to_extract not in response_dict:
-            log(f'[http_request] Error: request with args {args} did not return the field {field_to_extract}')
+            logging.warn(f'[http_request] Error: request with args {args} did not return the field {field_to_extract}')
             raise IOError
         return response_dict[field_to_extract]
 

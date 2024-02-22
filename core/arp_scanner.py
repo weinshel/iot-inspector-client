@@ -6,8 +6,8 @@ By default, all devices are inspected.
 """
 import scapy.all as sc
 import core.global_state as global_state
-import core.common as common
 import core.networking as networking
+import logging
 
 
 def start_arp_scanner():
@@ -17,7 +17,7 @@ def start_arp_scanner():
 
     # Sends an ARP request to every IP address on the network
     ip_range = networking.get_network_ip_range()
-    common.log(f'[ARP Scanner] Scanning {len(ip_range)} IP addresses.')
+    logging.info(f'[ARP Scanner] Scanning {len(ip_range)} IP addresses.')
 
     for ip in ip_range:
 

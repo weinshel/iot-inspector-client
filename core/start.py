@@ -4,6 +4,7 @@ logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 import time
 import core.global_state as global_state
 import core.common
+import core.config
 import core.model
 import core.networking
 import core.arp_scanner
@@ -17,21 +18,23 @@ import os
 
 def start_threads():
 
+    logging.basicConfig(filename=os.path.join(core.common.get_project_directory(), 'inspector.log'), level=logging.INFO)
+
     with global_state.global_state_lock:
         if global_state.inspector_started[0]:
-            core.common.log('Another instance of Inspector is already running. Aborted.')
+            logging.error('Another instance of Inspector is already running. Aborted.')
             return
         global_state.inspector_started[0] = True
         global_state.inspector_started_ts = time.time()
 
-    core.common.log('Starting Inspector')
+    logging.info('Starting Inspector')
 
     # Initialize the database
-    core.common.log('Initializing the database')
+    logging.info('Initializing the database')
     core.model.initialize_tables()
 
     # Initialize the networking variables
-    core.common.log('Initializing the networking variables')
+    logging.info('Initializing the networking variables')
     core.networking.enable_ip_forwarding()
     core.networking.update_network_info()
 
@@ -44,7 +47,7 @@ def start_threads():
     core.common.SafeLoopThread(core.friendly_organizer.add_product_info_to_devices, sleep_time=5)
     core.common.SafeLoopThread(core.data_donation.start, sleep_time=15)
 
-    core.common.log('Inspector started')
+    logging.info('Inspector started')
 
 
 

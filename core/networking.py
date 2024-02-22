@@ -11,6 +11,7 @@ import scapy.all as sc
 import netifaces
 import netaddr
 import threading
+import logging
 
 
 
@@ -56,7 +57,7 @@ def update_network_info():
         global_state.host_mac_addr = get_my_mac()
         global_state.arp_cache = networking.ARPCache()
 
-    common.log(f'[Networking] Gateway IP address: {global_state.gateway_ip_addr}, Host Interface: {global_state.host_active_interface}, Host IP address: {global_state.host_ip_addr}, Host MAC address: {global_state.host_mac_addr}')
+    logging.info(f'[Networking] Gateway IP address: {global_state.gateway_ip_addr}, Host Interface: {global_state.host_active_interface}, Host IP address: {global_state.host_ip_addr}, Host MAC address: {global_state.host_mac_addr}')
 
 
 
@@ -85,7 +86,7 @@ def get_default_route():
         if default_route:
             break
 
-        common.log('get_default_route: retrying')
+        logging.info('get_default_route: retrying')
         time.sleep(1)
 
 
