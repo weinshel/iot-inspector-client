@@ -5,11 +5,11 @@ Sends out ARP spoofing packets for devices in the Device table.
 import time
 import scapy.all as sc
 import core.global_state as global_state
-import core.common as common
 import core.networking as networking
 import core.config as config
 import core.model as model
 import traceback
+import logging
 
 # How many seconds between successive ARP spoofing attempts for each host
 INTERNET_SPOOFING_INTERVAL = 2
@@ -48,10 +48,10 @@ def spoof_internet_traffic():
     try:
         gateway_mac_addr = global_state.arp_cache.get_mac_addr(gateway_ip_addr)
     except KeyError:
-        common.log(f'Gateway (ip: {gateway_ip_addr}) MAC address not found in ARP cache. Cannot spoof internet traffic yet.')
+        logging.warn(f'Gateway (ip: {gateway_ip_addr}) MAC address not found in ARP cache. Cannot spoof internet traffic yet.')
         return
 
-    common.log(f'[ARP Spoofer] Spoofing internet traffic for {len(inspected_device_list)} devices')
+    logging.info(f'[ARP Spoofer] Spoofing internet traffic for {len(inspected_device_list)} devices')
 
     # Send ARP spoofing packets for each inspected device
     for device in inspected_device_list:
@@ -63,7 +63,7 @@ def spoof_internet_traffic():
         try:
             send_spoofed_arp(device.mac_addr, device.ip_addr, gateway_mac_addr, gateway_ip_addr)
         except Exception:
-            common.log(f'[ARP Spoofer] Error spoofing {device.mac_addr}, {device.ip_addr} <-> {gateway_mac_addr}, {gateway_ip_addr}, because\n' + traceback.format_exc())
+            logging.warn(f'[ARP Spoofer] Error spoofing {device.mac_addr}, {device.ip_addr} <-> {gateway_mac_addr}, {gateway_ip_addr}, because\n' + traceback.format_exc())
 
     spoof_stat_dict['last_internet_spoof_ts'] = time.time()
 

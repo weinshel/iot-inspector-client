@@ -9,6 +9,7 @@ import core.networking as networking
 import core.common as common
 import core.anonymization as anonymization
 import time
+import logging
 
 
 
@@ -162,7 +163,7 @@ def donate_network_data(user_key):
 
         config.set('last_donation_ts', end_time)
 
-    common.log(f'[Data Donation] Donated data for {len(pending_donation_dict)} devices')
+    logging.info(f'[Data Donation] Donated data for {len(pending_donation_dict)} devices')
 
 
 
@@ -204,4 +205,4 @@ def donate_survey_data(user_key):
 
     config.set('last_survey_uploaded_ts', survey_response_updated_ts)
 
-    common.log(f'[Data Donation] Donated survey data.')
+    logging.info(f'[Data Donation] Donated survey data.')

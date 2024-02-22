@@ -15,6 +15,7 @@ import geoip2.database
 import functools
 import tldextract
 import json
+import logging
 
 
 ip_country_parser = geoip2.database.Reader(
@@ -71,7 +72,7 @@ def add_product_info_to_devices():
                 ).execute()
                 updated_row_count += row_count
 
-    common.log(f'[Friendly Organizer] Updated {updated_row_count} rows of product info.')
+    logging.info(f'[Friendly Organizer] Updated {updated_row_count} rows of product info.')
 
 
 
@@ -225,7 +226,7 @@ def add_hostname_info_to_flows():
                     ).execute()
                     updated_row_count += row_count
 
-    common.log(f'[Friendly Organizer] Updated {updated_row_count} rows of hostname info.')
+    logging.info(f'[Friendly Organizer] Updated {updated_row_count} rows of hostname info.')
 
 
 @functools.lru_cache(maxsize=8192)
