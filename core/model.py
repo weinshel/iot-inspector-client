@@ -93,13 +93,6 @@ class Hostname(BaseModel):
     data_source = TextField(default="")
 
 
-class FriendlyIdentity(BaseModel):
-
-    key = TextField(index=True)
-    value = TextField()
-    type = TextField(index=True)
-
-
 class Configuration(BaseModel):
 
     key = TextField(index=True)
@@ -118,4 +111,4 @@ def initialize_tables():
     with db:
 
         # Create tables
-        db.create_tables([Device, Flow, Hostname, FriendlyIdentity, Configuration, AdTracker])
+        db.create_tables([Device, Flow, Hostname, Configuration, AdTracker])

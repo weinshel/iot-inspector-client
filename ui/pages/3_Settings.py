@@ -52,7 +52,6 @@ def reset_local_data():
         model.Device.delete().execute()
         model.Flow.delete().execute()
         model.Hostname.delete().execute()
-        model.FriendlyIdentity.delete().execute()
         model.Configuration.delete().execute()
         model.AdTracker.delete().execute()
 
